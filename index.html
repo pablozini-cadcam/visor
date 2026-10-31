@@ -1009,6 +1009,9 @@ async function fetchCase(url){
   return new Uint8Array(await res.arrayBuffer());
 }
 /* enlace: #id.clave (corto)  ·  #r=usuario/repo&c=id&k=clave  ·  #u=url&k=clave */
+const QID=/^[a-z0-9]{6,16}$/, QKEY=/^[A-Za-z0-9_-]{16,64}$/;
+function linkHash(){ const q=location.search.slice(1).split("&")[0], h=location.hash.slice(1);
+  return (QID.test(q)&&QKEY.test(h))?q+"."+h:h; }
 async function fromLink(h){
   const m=h.match(SHORT), hp=new URLSearchParams(h), urls=[];
   if(m){ KEY=SNC.b64urlDec(m[2]); const src=window.SNV_SRC||{};
@@ -1040,7 +1043,7 @@ if(!webglOK()) fail("e_webgl");
 else{
   const node=$("snv-data"), hp=new URLSearchParams(location.hash.slice(1));
   if(node){ DATA=node.textContent; node.textContent=""; start(); }
-  else if(SHORT.test(location.hash.slice(1))||(hp.get("k")&&(hp.get("u")||(hp.get("r")&&hp.get("c"))))) fromLink(location.hash.slice(1)).catch(err=>{ console.error(err); fail(errKey(err)); });
+  else if(SHORT.test(linkHash())||(hp.get("k")&&(hp.get("u")||(hp.get("r")&&hp.get("c"))))) fromLink(linkHash()).catch(err=>{ console.error(err); fail(errKey(err)); });
   else landing();
 }
 })();
